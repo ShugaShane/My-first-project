@@ -33,6 +33,21 @@
             <button class="btn number" onclick="appendNumber('.')">.</button>
         </div>
     </div>
+
+    <button class="history-toggle" onclick="toggleHistory()" id="historyToggle">
+        History
+    </button>
+
+    <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <h3>History</h3>
+            <button class="clear-history-btn" onclick="clearHistory()">Clear History</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <p class="no-history">No calculations yet</p>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
