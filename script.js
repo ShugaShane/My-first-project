@@ -4,6 +4,7 @@ let waitingForSecondOperand = false;
 let operator = null;
 let formula = '';
 let justCalculated = false;
+let calculationHistory = [];
 
 function updateDisplay() {
     const display = document.getElementById('display');
@@ -81,9 +82,13 @@ function calculate() {
         const result = performCalculation();
         const resultValue = parseFloat(result.toFixed(7));
         // Show complete calculation with result
-        formula += ' = ' + resultValue;
+        const completeFormula = formula + ' = ' + resultValue;
+        formula = completeFormula;
         displayValue = `${resultValue}`;
         updateDisplay();
+
+        // Add to history
+        addToHistory(completeFormula);
 
         // Reset for next calculation but remember we just calculated
         firstOperand = null;
@@ -102,6 +107,38 @@ function clearDisplay() {
     formula = '';
     justCalculated = false;
     updateDisplay();
+}
+
+function toggleHistory() {
+    const panel = document.getElementById('historyPanel');
+    panel.classList.toggle('open');
+}
+
+function addToHistory(formula) {
+    calculationHistory.push(formula);
+    updateHistoryDisplay();
+}
+
+function clearHistory() {
+    calculationHistory = [];
+    updateHistoryDisplay();
+}
+
+function updateHistoryDisplay() {
+    const historyList = document.getElementById('historyList');
+
+    if (calculationHistory.length === 0) {
+        historyList.innerHTML = '<p class="no-history">No calculations yet</p>';
+    } else {
+        historyList.innerHTML = '';
+        // Display in reverse order (newest first)
+        for (let i = calculationHistory.length - 1; i >= 0; i--) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.textContent = calculationHistory[i];
+            historyList.appendChild(historyItem);
+        }
+    }
 }
 
 // Initialize display
