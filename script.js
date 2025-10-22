@@ -2,18 +2,32 @@ let displayValue = '0';
 let firstOperand = null;
 let waitingForSecondOperand = false;
 let operator = null;
+let formula = '';
+let justCalculated = false;
 
 function updateDisplay() {
     const display = document.getElementById('display');
-    display.textContent = displayValue;
+    // Show formula if it exists, otherwise show the current value
+    display.textContent = formula || displayValue;
 }
 
 function appendNumber(num) {
-    if (waitingForSecondOperand) {
+    // If we just calculated, start fresh
+    if (justCalculated) {
         displayValue = num;
+        formula = num;
+        justCalculated = false;
+    } else if (waitingForSecondOperand) {
+        displayValue = num;
+        formula += num;
         waitingForSecondOperand = false;
     } else {
         displayValue = displayValue === '0' ? num : displayValue + num;
+        if (formula === '' || formula.endsWith(' ')) {
+            formula += num;
+        } else {
+            formula += num;
+        }
     }
     updateDisplay();
 }
@@ -21,16 +35,28 @@ function appendNumber(num) {
 function appendOperator(nextOperator) {
     const inputValue = parseFloat(displayValue);
 
+    // If we just calculated, continue from the result
+    if (justCalculated) {
+        justCalculated = false;
+        formula = displayValue;
+    }
+
     if (firstOperand === null && !isNaN(inputValue)) {
         firstOperand = inputValue;
+        if (formula === '') {
+            formula = displayValue;
+        }
     } else if (operator) {
         const result = performCalculation();
         displayValue = `${parseFloat(result.toFixed(7))}`;
         firstOperand = result;
+        // Update formula with the result for chained operations
+        formula = displayValue;
     }
 
     waitingForSecondOperand = true;
     operator = nextOperator;
+    formula += ' ' + nextOperator + ' ';
     updateDisplay();
 }
 
@@ -53,11 +79,18 @@ function performCalculation() {
 function calculate() {
     if (operator && !waitingForSecondOperand) {
         const result = performCalculation();
-        displayValue = `${parseFloat(result.toFixed(7))}`;
+        const resultValue = parseFloat(result.toFixed(7));
+        // Show complete calculation with result
+        formula += ' = ' + resultValue;
+        displayValue = `${resultValue}`;
+        updateDisplay();
+
+        // Reset for next calculation but remember we just calculated
         firstOperand = null;
         operator = null;
         waitingForSecondOperand = false;
-        updateDisplay();
+        justCalculated = true;
+        formula = '';
     }
 }
 
@@ -66,6 +99,8 @@ function clearDisplay() {
     firstOperand = null;
     waitingForSecondOperand = false;
     operator = null;
+    formula = '';
+    justCalculated = false;
     updateDisplay();
 }
 
